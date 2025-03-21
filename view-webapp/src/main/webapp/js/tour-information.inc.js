@@ -7,6 +7,14 @@ function autofillShortName(dt, loc) {
   }
 }
 
+function updateStartTimesUI(rounds) {
+  const startTimesContainer = $('#startTimesContainer');
+  startTimesContainer.empty();
+  for (let i = 0; i < rounds; i++) {
+    startTimesContainer.append(`<input type="text" name="startTime" placeholder="Start time for round ${i + 1}" />`);
+  }
+}
+
 onLoad(() => {
   $('#edit').on('click', e => {
     e.preventDefault();
@@ -286,4 +294,11 @@ onLoad(() => {
     if (pairing === 'swiss') $('#tournament-infos .swiss').removeClass('hidden');
     else $('#tournament-infos .swiss').addClass('hidden');
   });
+
+  const roundsInput = $('input[name="rounds"]');
+  roundsInput.on('change', e => {
+    updateStartTimesUI(e.target.value);
+  });
+
+  updateStartTimesUI(roundsInput.val());
 });

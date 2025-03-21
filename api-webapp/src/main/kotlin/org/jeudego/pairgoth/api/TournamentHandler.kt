@@ -37,6 +37,7 @@ object TournamentHandler: PairgothApiHandler {
                                     json["stats"] = tour.stats()
                                     json["teamSize"] = tour.type.playersNumber
                                     json["frozen"] = tour.frozen != null
+                                    json["startTimes"] = tour.startTimes?.toJsonArray()
                                 }
                             }
                         } ?: badRequest("no tournament with id #${id}")
