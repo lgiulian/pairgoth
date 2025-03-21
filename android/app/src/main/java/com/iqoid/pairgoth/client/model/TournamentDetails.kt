@@ -21,6 +21,7 @@ data class TournamentDetails(
     val rounds: Int,
     @SerializedName("pairing")
     val pairing: PairingDetails,
+    val startTimes: List<String?>
     //Removed stats, teamSize and frozen because they are not used by the fragment
 )
 

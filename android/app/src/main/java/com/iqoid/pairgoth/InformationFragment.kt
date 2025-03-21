@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.graphics.Typeface
@@ -39,6 +40,7 @@ class InformationFragment : Fragment() {
     private lateinit var tournamentGobanSize: TextView
     private lateinit var tournamentKomi: TextView
     private lateinit var timeSystemContainer: LinearLayout
+    private lateinit var startTimeContainer: LinearLayout
 
     private var tournamentId: String = "1"
 
@@ -73,6 +75,7 @@ class InformationFragment : Fragment() {
         tournamentGobanSize = view.findViewById(R.id.tournamentGobanSize)
         tournamentKomi = view.findViewById(R.id.tournamentKomi)
         timeSystemContainer = view.findViewById(R.id.timeSystemContainer)
+        startTimeContainer = view.findViewById(R.id.startTimeContainer)
 
         // Get the tournament ID from the arguments
         tournamentId = arguments?.getString(TOURNAMENT_ID_EXTRA)?: "1"
@@ -158,6 +161,21 @@ class InformationFragment : Fragment() {
                 addTextViewToLinearLayout(timeSystemContainer, formatLabelAndValue("Increment",toHMS(it)))
             }
         }
+
+        // Clear previous startTime input fields
+        startTimeContainer.removeAllViews()
+
+        // Create input fields for each round
+        for (round in 1..tournament.rounds) {
+            val roundLabel = TextView(context)
+            roundLabel.text = "Round $round Start Time"
+            startTimeContainer.addView(roundLabel)
+
+            val startTimeInput = EditText(context)
+            startTimeInput.hint = "Enter start time for round $round"
+            startTimeInput.setText(tournament.startTimes?.get(round - 1) ?: "")
+            startTimeContainer.addView(startTimeInput)
+        }
     }
 
     private fun addTextViewToLinearLayout(container: LinearLayout, text: SpannableString) {
@@ -222,5 +240,20 @@ class InformationFragment : Fragment() {
         val remainingSeconds = seconds % 60
 
         return String.format("%02d:%02d:%02d", hours, minutes, remainingSeconds)
+    }
+
+    private fun collectStartTimes(): List<String?> {
+        val startTimes = mutableListOf<String?>()
+        for (i in 0 until startTimeContainer.childCount step 2) {
+            val startTimeInput = startTimeContainer.getChildAt(i + 1) as EditText
+            startTimes.add(startTimeInput.text.toString())
+        }
+        return startTimes
+    }
+
+    private fun updateTournamentDetails(tournament: TournamentDetails) {
+        val startTimes = collectStartTimes()
+        // Include startTimes in the API request
+        // ...
     }
 }
