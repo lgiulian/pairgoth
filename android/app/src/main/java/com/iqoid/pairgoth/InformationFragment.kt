@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.graphics.Typeface
@@ -39,6 +40,7 @@ class InformationFragment : Fragment() {
     private lateinit var tournamentGobanSize: TextView
     private lateinit var tournamentKomi: TextView
     private lateinit var timeSystemContainer: LinearLayout
+    private lateinit var startTimesContainer: LinearLayout
 
     private var tournamentId: String = "1"
 
@@ -73,6 +75,7 @@ class InformationFragment : Fragment() {
         tournamentGobanSize = view.findViewById(R.id.tournamentGobanSize)
         tournamentKomi = view.findViewById(R.id.tournamentKomi)
         timeSystemContainer = view.findViewById(R.id.timeSystemContainer)
+        startTimesContainer = view.findViewById(R.id.startTimesContainer)
 
         // Get the tournament ID from the arguments
         tournamentId = arguments?.getString(TOURNAMENT_ID_EXTRA)?: "1"
@@ -158,6 +161,9 @@ class InformationFragment : Fragment() {
                 addTextViewToLinearLayout(timeSystemContainer, formatLabelAndValue("Increment",toHMS(it)))
             }
         }
+
+        // Start Times
+        updateStartTimesUI(tournament.rounds, tournament.startTimes)
     }
 
     private fun addTextViewToLinearLayout(container: LinearLayout, text: SpannableString) {
@@ -222,5 +228,19 @@ class InformationFragment : Fragment() {
         val remainingSeconds = seconds % 60
 
         return String.format("%02d:%02d:%02d", hours, minutes, remainingSeconds)
+    }
+
+    private fun updateStartTimesUI(rounds: Int, startTimes: List<String>?) {
+        startTimesContainer.removeAllViews()
+        for (i in 1..rounds) {
+            val editText = EditText(context)
+            editText.hint = "Start Time for Round $i"
+            startTimes?.let {
+                if (i <= it.size) {
+                    editText.setText(it[i - 1])
+                }
+            }
+            startTimesContainer.addView(editText)
+        }
     }
 }
