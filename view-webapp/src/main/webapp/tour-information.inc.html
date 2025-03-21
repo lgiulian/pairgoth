@@ -217,6 +217,29 @@
         </div>
       </div>
     </div>
+    <div class="roundbox">
+      <div class="three stackable fields">
+        <div class="seven wide field">
+          <label>Start Times</label>
+          <span class="info"></span>
+          <div id="startTimesContainer">
+            #if($tour)
+              #foreach($startTime in $tour.startTimes)
+                <div class="field">
+                  <label>Round $velocityCount Start Time</label>
+                  <input type="text" name="startTimes" placeholder="Enter start time for round $velocityCount" value="$startTime"/>
+                </div>
+              #end
+            #else
+              <div class="field">
+                <label>Round 1 Start Time</label>
+                <input type="text" name="startTimes" placeholder="Enter start time for round 1"/>
+              </div>
+            #end
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="form-actions">
       <button id="cancel" class="ui gray right labeled icon floating edit button">
         <i class="times icon"></i>

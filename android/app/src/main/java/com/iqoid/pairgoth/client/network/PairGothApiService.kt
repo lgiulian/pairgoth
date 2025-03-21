@@ -44,4 +44,3 @@ interface PairGothApiService {
     @GET("tour/{tournamentId}/standings/{round}")
     suspend fun getStandings(@Path("tournamentId") tournamentId: String, @Path("round") round: Int): Response<List<Standing>>
 }
-
