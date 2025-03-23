@@ -1,0 +1,15 @@
+meta {
+  name: Get tournament pairing
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://localhost:8080/api/tour/1/pair/1
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

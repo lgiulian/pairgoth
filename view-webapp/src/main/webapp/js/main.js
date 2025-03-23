@@ -1,5 +1,16 @@
 // Utilities
 
+function generateQRCode() {
+  const baseUrl = window.location.origin; // Get current base URL
+  const qrCodeData = baseUrl; // This can be modified to include extra data if needed
+
+  new QRCode(document.getElementById("qrcode"), {
+    text: qrCodeData,
+    width: 200,
+    height: 200
+  });
+}
+
 const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 function randomString(length) {
   let result = '';
@@ -201,6 +212,8 @@ function isTouchDevice() {
 }
 
 onLoad(() => {
+  generateQRCode();
+  
   $('button.close').on('click', e => {
     close_modal();
     /* no need to be specific...
