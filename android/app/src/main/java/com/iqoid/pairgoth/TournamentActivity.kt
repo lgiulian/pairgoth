@@ -13,7 +13,6 @@ import android.widget.ListView
 import android.widget.Toast
 import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.Camera
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -33,12 +32,18 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
 class TournamentActivity : AppCompatActivity() {
+
+    companion object {
+        const val PREFS_NAME = "PairGothPrefs"
+        const val BASE_URL_KEY = "api_base_url"
+        private const val TAG = "TournamentActivity"
+    }
+
     private lateinit var tournamentListView: ListView
     private lateinit var tournaments: Map<String, Tournament>
 
     private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
     private lateinit var previewView: PreviewView
-    private var camera: Camera? = null
     private var isScanning = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,25 +70,9 @@ class TournamentActivity : AppCompatActivity() {
             }
         }
 
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val response = NetworkManager.pairGothApiService.getTours()
-                if (response.isSuccessful) {
-                    tournaments = response.body() ?: emptyMap() // Store the map directly
-                    // log all the tournaments
-                    tournaments.forEach { (key, value) ->
-                        Log.d("TournamentActivity", "Key: $key, Value: $value")
-                    }
-                    runOnUiThread {
-                        updateTournamentList()
-                    }
-                } else {
-                    Log.e("TournamentActivity", "Error: ${response.errorBody()}")
-                }
-            } catch (e: Exception) {
-                Log.e("TournamentActivity", "Exception: ${e.message}")
-            }
-        }
+        // Initialize the base URL from shared preferences
+        NetworkManager.initializeBaseUrl(this)
+        updateUI()
 
         tournamentListView.setOnItemClickListener { _, _, position, _ ->
             val selectedTournamentEntry = tournaments.entries.toList()[position] // Get the selected entry
@@ -95,6 +84,28 @@ class TournamentActivity : AppCompatActivity() {
                 Log.d("TournamentActivity", "Key passed to TournamentDetailsActivity: $tournamentKey")
             }
             startActivity(intent)
+        }
+    }
+
+    private fun updateUI() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = NetworkManager.pairGothApiService.getTours()
+                if (response.isSuccessful) {
+                    tournaments = response.body() ?: emptyMap() // Store the map directly
+                    // log all the tournaments
+                    tournaments.forEach { (key, value) ->
+                        Log.d(TAG, "Key: $key, Value: $value")
+                    }
+                    runOnUiThread {
+                        updateTournamentList() // Update the UI on the main thread
+                    }
+                } else {
+                    Log.e("TournamentActivity", "Error: ${response.errorBody()}")
+                }
+            } catch (e: Exception) {
+                Log.e("TournamentActivity", "Exception: ${e.message}")
+            }
         }
     }
 
@@ -147,14 +158,15 @@ class TournamentActivity : AppCompatActivity() {
             .addOnSuccessListener { barcodes ->
                 for (barcode in barcodes) {
                     barcode.rawValue?.let { scannedUrl ->
-                        saveBaseUrl(scannedUrl)
+                        saveBaseUrl(scannedUrl + "/api/")
                         Toast.makeText(this, "Tournament QR Code saved!", Toast.LENGTH_SHORT).show()
                         stopCamera()
+                        updateUI()
                     }
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("QR Scanner", "Error scanning QR", e)
+                Log.e(TAG, "Error scanning QR", e)
             }
             .addOnCompleteListener {
                 imageProxy.close()
@@ -172,8 +184,10 @@ class TournamentActivity : AppCompatActivity() {
     }
 
     private fun saveBaseUrl(url: String) {
-        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
-        prefs.edit().putString("api_base_url", url).apply()
+        Log.d(TAG, "Saving base URL: $url")
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        prefs.edit().putString(BASE_URL_KEY, url).apply()
+        NetworkManager.updateBaseUrl(url)
     }
 
     private fun allPermissionsGranted() = ContextCompat.checkSelfPermission(

@@ -4,11 +4,14 @@ function generateQRCode() {
   const baseUrl = window.location.origin; // Get current base URL
   const qrCodeData = baseUrl; // This can be modified to include extra data if needed
 
-  new QRCode(document.getElementById("qrcode"), {
-    text: qrCodeData,
-    width: 200,
-    height: 200
-  });
+  const qrcodeElement = document.getElementById("qrcode");
+  if (qrcodeElement) {
+    new QRCode(qrcodeElement, {
+      text: qrCodeData,
+      width: 100,
+      height: 100
+    });
+  }
 }
 
 const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

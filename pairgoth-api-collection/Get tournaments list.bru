@@ -1,0 +1,15 @@
+meta {
+  name: Get tournaments list
+  type: http
+  seq: 8
+}
+
+get {
+  url: http://192.168.0.138:8080/api/tour/list
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
