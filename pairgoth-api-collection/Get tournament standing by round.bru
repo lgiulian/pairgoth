@@ -1,0 +1,15 @@
+meta {
+  name: Get tournament standing by round
+  type: http
+  seq: 7
+}
+
+get {
+  url: http://localhost:8080/api/tour/1/standings/2
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

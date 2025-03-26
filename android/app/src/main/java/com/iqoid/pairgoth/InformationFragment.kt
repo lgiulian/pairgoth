@@ -160,12 +160,8 @@ class InformationFragment : Fragment() {
         startTimeContainer.removeAllViews()
         for (round in 1..tournament.rounds) {
             val roundLabel = TextView(context)
-            roundLabel.text = "Round $round Start Time"
+            roundLabel.text = "Round $round Start Time:" + tournament.startTimes?.getOrNull(round - 1)
             startTimeContainer.addView(roundLabel)
-
-            val startTimeInput = TextView(context)
-            startTimeInput.setText(tournament.startTimes?.getOrNull(round - 1) ?: "")
-            startTimeContainer.addView(startTimeInput)
         }
     }
 

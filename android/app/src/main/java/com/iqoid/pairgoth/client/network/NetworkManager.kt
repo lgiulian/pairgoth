@@ -1,41 +1,73 @@
 package com.iqoid.pairgoth.client.network
 
+import android.content.Context
+import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
+import com.iqoid.pairgoth.TournamentActivity.Companion.BASE_URL_KEY
+import com.iqoid.pairgoth.TournamentActivity.Companion.PREFS_NAME
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object NetworkManager {
-    private const val BASE_URL = "http://192.168.0.138:8080/api/" // Replace with your API's base URL
+    private var baseUrl: String = "http://dummy/api/"
 
-    val pairGothApiService: PairGothApiService by lazy {
-        val loggingInterceptor = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY //optional logging
-        }
+    @Volatile
+    private var retrofit: Retrofit? = null
 
-        // Create an interceptor to add the Accept header
-        val acceptHeaderInterceptor = object : Interceptor {
-            override fun intercept(chain: Interceptor.Chain): Response {
-                val request = chain.request().newBuilder()
-                    .addHeader("Accept", "application/json") // Add the Accept header
-                    .build()
-                return chain.proceed(request)
+    @Volatile
+    private var pairGothApiServiceInstance: PairGothApiService? = null
+
+    private val lock = Any()
+
+    val pairGothApiService: PairGothApiService
+        get() {
+            return pairGothApiServiceInstance ?: synchronized(lock) {
+                pairGothApiServiceInstance ?: createRetrofitClient().also {
+                    pairGothApiServiceInstance = it
+                }
             }
         }
 
+    private fun createRetrofitClient(): PairGothApiService {
+        val loggingInterceptor = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+
+        val acceptHeaderInterceptor = Interceptor { chain ->
+            val request = chain.request().newBuilder()
+                .addHeader("Accept", "application/json")
+                .build()
+            chain.proceed(request)
+        }
+
         val client = OkHttpClient.Builder()
-            .addInterceptor(loggingInterceptor) //optional logging
-            .addInterceptor(acceptHeaderInterceptor) // Add the Accept header interceptor
+            .addInterceptor(loggingInterceptor)
+            .addInterceptor(acceptHeaderInterceptor)
             .build()
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL)
+        retrofit = Retrofit.Builder()
+            .baseUrl(baseUrl)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
-        retrofit.create(PairGothApiService::class.java)
+        return retrofit!!.create(PairGothApiService::class.java)
+    }
+
+    fun updateBaseUrl(newBaseUrl: String) {
+        synchronized(lock) {
+            baseUrl = newBaseUrl
+            pairGothApiServiceInstance = createRetrofitClient()
+        }
+    }
+
+    fun initializeBaseUrl(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        val savedBaseUrl = prefs.getString(BASE_URL_KEY, null)
+        if (savedBaseUrl != null) {
+            baseUrl = savedBaseUrl
+        }
     }
 }
