@@ -18,17 +18,17 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MyApplication"
+        android:theme="@style/Theme.Pairgothoid"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.MyApplication">
+            android:theme="@style/Theme.Pairgothoid">
         </activity>
         <activity
             android:name=".TournamentActivity"
-            android:theme="@style/Theme.MyApplication"
+            android:theme="@style/Theme.Pairgothoid"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,17 +38,17 @@
         </activity>
         <activity
             android:name=".PlayerSearchActivity"
-            android:theme="@style/Theme.MyApplication"
+            android:theme="@style/Theme.Pairgothoid"
             android:exported="false">
         </activity>
         <activity
             android:name=".SuccessActivity"
-            android:theme="@style/Theme.MyApplication"
+            android:theme="@style/Theme.Pairgothoid"
             android:exported="false">
         </activity>
         <activity
             android:name=".TournamentDetailsActivity"
-            android:theme="@style/Theme.Pairgoth"
+            android:theme="@style/Theme.Pairgothoid"
             android:exported="false">
         </activity>
     </application>
