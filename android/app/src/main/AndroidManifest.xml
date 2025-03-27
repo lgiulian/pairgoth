@@ -48,7 +48,7 @@
         </activity>
         <activity
             android:name=".TournamentDetailsActivity"
-            android:theme="@style/Theme.Pairgothoid"
+            android:theme="@style/Theme.Pairgothoid.NoActionBar"
             android:exported="false">
         </activity>
     </application>
